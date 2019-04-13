@@ -24,7 +24,7 @@ the json format is self-explanatory. note that the numbers are encoded as text t
 install python 3.7 and a local ethereum node.
 
 ```bash
-pip3 install chief 
+pip3 install maker-chief 
 ```
 
 ## usage
