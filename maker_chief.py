@@ -14,6 +14,10 @@ from eth_utils import function_signature_to_4byte_selector, decode_hex, encode_h
 from web3.auto import w3
 from web3.exceptions import NoABIFunctionsFound, MismatchedABI
 
+
+CHIEF_ADDRESS = '0x9eF05f7F6deB616fd37aC3c959a2dDD25A54E4F5'
+CHIEF_BLOCK = 7705361
+
 pool = ThreadPoolExecutor(10)
 cache = Path(appdirs.user_cache_dir('chief'))
 cache.mkdir(exist_ok=True)
@@ -53,7 +57,7 @@ def get_contract_abi(address):
 
 def get_slates(chief):
     '''Get unique sets of proposals.'''
-    etches = chief.events.Etch().createFilter(fromBlock=4749331).get_all_entries()
+    etches = chief.events.Etch().createFilter(fromBlock=CHIEF_BLOCK).get_all_entries()
     slates = {encode_hex(etch['args']['slate']) for etch in etches}
     return slates
 
@@ -87,7 +91,7 @@ def get_notes(chief):
         'topics': [
             [func_topic('vote(address[])'), func_topic('vote(bytes32)')]
         ],
-        'fromBlock': 4749331,
+        'fromBlock': CHIEF_BLOCK,
     })
 
 
@@ -184,16 +188,24 @@ def output_json(voters, results, spells, hat):
 @click.command()
 @click.option('--json', is_flag=True)
 def main(json):
-    chief = get_contract('0x8E2a84D6adE1E7ffFEe039A35EF5F19F13057152')
+    chief = get_contract(CHIEF_ADDRESS)
+    print('got chief')
     slates = get_slates(chief)
+    print('got slates')
     slates_yays = slates_to_yays(chief, slates)
+    print('got yays')
 
     notes = get_notes(chief)
+    print('got notes')
     voters = notes_to_voters(chief, notes, slates_yays)
+    print('got voters')
 
     results = voters_to_results(voters)
+    print('got results')
     spells = get_spells([proposal for proposal, votes in results])
+    print('got spells')
     hat = chief.functions.hat().call()
+    print('got hat')
 
     if json:
         output_json(voters, results, spells, hat)

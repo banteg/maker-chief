@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "maker-chief"
-version = "0.1.0"
+version = "0.1.2"
 description = "tally makerdao governance votes"
 authors = ["banteg <banteeg@gmail.com>"]
 license = "MIT"
